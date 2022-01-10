@@ -6,73 +6,45 @@ class Node {
 }
 
 class MaxBinaryHeap {
-  constructor() {
-    this._heap = [];
-  }
+  #heap = [];
 
-  _getParentIndex (index) {
-    return Math.floor((index - 1) / 2);
-  }
+  constructor (heapArray = []) {
+    if (Array.isArray(heapArray)) {
+      this.#heap = heapArray.map((entry) => {
+        if (Array.isArray(entry)) {
+          return new Node(entry[0], entry[1]);
+        } else if (Number.isInteger(entry)) {
+          return new Node(entry, entry);
+        }
+      });
 
-  _getLeftChildIndex (index) {
-    return index * 2 + 1;
-  }
-
-  _getRightChildIndex (index) {
-    return index * 2 + 2;
-  }
-
-  _getLeftChildRank (index) {
-    return this._getRank(this._getLeftChildIndex(index));
-  }
-
-  _getRightChildRank (index) {
-    return this._getRank(this._getRightChildIndex(index));
-  }
-
-  _getRank (index) {
-    return this._heap[index].rank;
-  }
-
-  _hasParent (index) {
-    return this._getParentIndex(index) >= 0;
-  }
-
-  _hasLeftChild (index) {
-    return this._getLeftChildIndex(index) < this._heap.length;
-  }
-
-  _hasRightChild (index) {
-    return this._getRightChildIndex(index) < this._heap.length;
-  }
-
-  _swap (indexA, indexB) {
-    const node = this._heap[indexA];
-
-    this._heap[indexA] = this._heap[indexB];
-    this._heap[indexB] = node;
-  }
-
-  peek () {
-    if (!this._heap.length) {
-      return null;
+      this.#heapify();
     }
-
-    return this._heap[0].value;
   }
 
-  push (value, rank) {
-    const node = new Node(value, rank);
+  static from (object) {
+    return new MaxBinaryHeap(object);
+  }
 
-    this._heap.push(node);
+  #heapify () {
+    let lastInternalNodeIndex = Math.floor((this.#heap.length - 2) / 2);
+    let index = lastInternalNodeIndex;
 
-    let currentIndex = this._heap.length - 1;
+    while (index >= 0) {
+      this.#pushDown(index);
 
-    while (this._hasParent(currentIndex)) {
-      const parentIndex = this._getParentIndex(currentIndex);
+      index--;
+    }
+  }
 
-      if (this._getRank(currentIndex) > this._getRank(parentIndex)) {
-        this._swap(parentIndex, currentIndex);
+  #bubbleUp (index) {
+    let currentIndex = index;
+
+    while (this.#hasParent(currentIndex)) {
+      const parentIndex = this.#getParentIndex(currentIndex);
+
+      if (this.#getRank(currentIndex) > this.#getRank(parentIndex)) {
+        this.#swap(currentIndex, parentIndex);
 
         currentIndex = parentIndex;
       } else {
@@ -81,30 +53,97 @@ class MaxBinaryHeap {
     }
   }
 
-  pop () {
-    if (!this._heap.length) {
+  #pushDown (index) {
+    let currentIndex = index;
+
+    while (this.#hasLeftChild(currentIndex)) {
+      let largestChildIndex = this.#getLeftChildIndex(currentIndex);
+
+      if (this.#hasRightChild(currentIndex) && this.#getRightChildRank(currentIndex) > this.#getLeftChildRank(currentIndex)) {
+        largestChildIndex = this.#getRightChildIndex(currentIndex);
+      }
+
+      if (this.#getRank(largestChildIndex) > this.#getRank(currentIndex)) {
+        this.#swap(currentIndex, largestChildIndex);
+      }
+
+      currentIndex = largestChildIndex;
+    }
+  }
+
+  #getParentIndex (index) {
+    return Math.floor((index - 1) / 2);
+  }
+
+  #getLeftChildIndex (index) {
+    return index * 2 + 1;
+  }
+
+  #getRightChildIndex (index) {
+    return index * 2 + 2;
+  }
+
+  #getParentRank (index) {
+    return this.#getRank(this.#getParentIndex(index));
+  }
+
+  #getLeftChildRank (index) {
+    return this.#getRank(this.#getLeftChildIndex(index));
+  }
+
+  #getRightChildRank (index) {
+    return this.#getRank(this.#getRightChildIndex(index));
+  }
+
+  #getRank (index) {
+    return this.#heap[index].rank;
+  }
+
+  #hasParent (index) {
+    return this.#getParentIndex(index) >= 0;
+  }
+
+  #hasLeftChild (index) {
+    return this.#getLeftChildIndex(index) < this.#heap.length;
+  }
+
+  #hasRightChild (index) {
+    return this.#getRightChildIndex(index) < this.#heap.length;
+  }
+
+  #swap (indexA, indexB) {
+    const node = this.#heap[indexA];
+
+    this.#heap[indexA] = this.#heap[indexB];
+    this.#heap[indexB] = node;
+  }
+
+  peek () {
+    if (!this.#heap.length) {
       return null;
     }
 
-    this._swap(0, this._heap.length - 1);
+    return this.#heap[0].value;
+  }
 
-    const node = this._heap.pop();
+  push (value, rank) {
+    const node = new Node(value, rank);
 
-    let currentIndex = 0;
+    this.#heap.push(node);
+    
+    this.#bubbleUp(this.#heap.length - 1);
+  }
 
-    while (this._hasLeftChild(currentIndex)) {
-      let smallestChildIndex = this._getLeftChildIndex(currentIndex);
-
-      if (this._hasRightChild(currentIndex) && this._getRightChildRank(currentIndex) > this._getLeftChildRank(currentIndex)) {
-        smallestChildIndex = this._getRightChildIndex(currentIndex);
-      }
-
-      if (this._getRank(smallestChildIndex) > this._getRank(currentIndex)) {
-        this._swap(smallestChildIndex, currentIndex);
-
-        currentIndex = smallestChildIndex;
-      }
+  pop () {
+    if (!this.#heap.length) {
+      return null;
     }
+
+    this.#swap(0, this.#heap.length - 1);
+
+    const node = this.#heap.pop();
+
+    this.#pushDown(0);
 
     return node.value;
   }

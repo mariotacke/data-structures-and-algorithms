@@ -37,4 +37,20 @@ describe('Max Binary Heap', () => {
     assert.strictEqual(maxBinaryHeap.pop(), 1);
     assert.strictEqual(maxBinaryHeap.pop(), null);
   });
+
+  it('should create heap from array', () => {
+    const maxBinaryHeap = MaxBinaryHeap.from([1, 4, 2, 9, 2, 6, 1, 8, 5, 2]);
+
+    assert.strictEqual(maxBinaryHeap.pop(), 9);
+    assert.strictEqual(maxBinaryHeap.pop(), 8);
+    assert.strictEqual(maxBinaryHeap.pop(), 6);
+    assert.strictEqual(maxBinaryHeap.pop(), 5);
+    assert.strictEqual(maxBinaryHeap.pop(), 4);
+    assert.strictEqual(maxBinaryHeap.pop(), 2);
+    assert.strictEqual(maxBinaryHeap.pop(), 2);
+    assert.strictEqual(maxBinaryHeap.pop(), 2);
+    assert.strictEqual(maxBinaryHeap.pop(), 1);
+    assert.strictEqual(maxBinaryHeap.pop(), 1);
+    assert.strictEqual(maxBinaryHeap.pop(), null);
+  });
 });
