@@ -11,7 +11,10 @@
   "author": "Mario Tacke <hi@mariotacke.io> (https://www.mariotacke.io)",
   "license": "MIT",
   "devDependencies": {
+    "benchmark": "^2.1.4",
     "eslint": "^8.3.0",
+    "microtime": "^3.0.0",
     "mocha": "^9.1.3"
-  }
+  },
+  "dependencies": {}
 }
